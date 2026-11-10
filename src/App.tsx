@@ -37,12 +37,6 @@ function App() {
         xAxisLabel="Time (min:sec)"
         yAxisLabel="Distance (m)"
       />
-
-      <JsonInput
-        label=""
-        value={jsonPoints}
-        onChange={setJsonPoints}
-      />
     </>
   )
 }

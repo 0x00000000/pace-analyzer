@@ -6,6 +6,15 @@
   display: block;
   width: 100%;
   height: auto;
+  user-select: none;
+}
+
+.draggable {
+  cursor: grab;
+}
+
+.dragging {
+  cursor: grabbing;
 }
 
 .axis {
