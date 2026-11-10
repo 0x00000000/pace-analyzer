@@ -1,0 +1,36 @@
+.wrapper {
+  width: 100%;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.axis {
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.grid {
+  stroke: currentColor;
+  stroke-opacity: 0.15;
+  stroke-width: 1;
+}
+
+.tickLabel {
+  fill: currentColor;
+  font-size: 12px;
+}
+
+.axisLabel {
+  fill: currentColor;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 16px;
+  color: #888;
+}
