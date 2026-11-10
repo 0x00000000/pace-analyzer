@@ -1,0 +1,30 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+  width: 100%;
+  min-height: 400px;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.counter {
+  text-align: left;
+  align-self: flex-begin;
+  color: #888;
+}
