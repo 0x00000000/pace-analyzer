@@ -1,0 +1,24 @@
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.background {
+  fill: currentColor;
+  fill-opacity: 0.04;
+}
+
+/* Marker at the current position */
+.pointer {
+  stroke: #fff;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+/* The part of the track that isn't visible on the graph */
+.track {
+  stroke: #aaa;
+}

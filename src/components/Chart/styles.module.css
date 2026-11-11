@@ -1,5 +1,61 @@
 .wrapper {
   width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+/* Left column: the graph with the stats under it. It takes most of the row;
+   min-width lets it shrink below its content size. */
+.main {
+  flex: 3 1 480px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Square map to the right of the graph and the stats, capped so it doesn't get huge on
+   wide screens. On narrow screens it wraps below them. */
+.map {
+  flex: 1 1 280px;
+  max-width: 480px;
+}
+
+/* Stats in a row under the graph. Every stat gets the same fixed width, so the layout
+   doesn't shift when the values change or are shown as dashes. They wrap on narrow screens. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  gap: 16px 24px;
+}
+
+.stat {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  margin-top: 12px;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: #888;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.statUnit {
+  font-size: 16px;
+  font-weight: 400;
+  color: #888;
 }
 
 .svg {
@@ -37,6 +93,15 @@
   fill: currentColor;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Vertical guide at the point under the mouse */
+.hoverLine {
+  stroke: currentColor;
+  stroke-opacity: 0.4;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
 }
 
 .empty {

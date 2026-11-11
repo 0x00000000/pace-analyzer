@@ -8,8 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run build`: type-checks (`tsc -b`, project references in `tsconfig.app.json` / `tsconfig.node.json`), then runs the production build into `dist/`
 - `npm run lint`: ESLint (flat config with typescript-eslint, react-hooks and react-refresh rules)
 - `npm run preview`: serves the built `dist/`
-
-There is no test runner set up yet.
+- `npm test`: Vitest in watch mode; `npm run test:run` runs the tests once. Tests sit next to the code as `*.test.ts(x)`; component tests use React Testing Library with jsdom.
 
 ## Project
 

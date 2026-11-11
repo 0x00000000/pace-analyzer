@@ -1,7 +1,13 @@
 .wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.label {
+  font-weight: 600;
 }
 
 .button {
@@ -9,6 +15,18 @@
   width: 200px;
   height: 40px;
   padding: 8px;
+  margin: 0 20px 0 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.text {
+  font-weight: 600;
+  width: 50px;
+  height: 27px;
+  padding: 6px;
+  margin: 0 20px 0 0;
   border: 1px solid #ccc;
   border-radius: 6px;
   font: inherit;

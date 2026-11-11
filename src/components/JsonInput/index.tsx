@@ -25,9 +25,6 @@ export function JsonInput(
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
             />
-            <small className={styles.counter}>
-                Length: {value.length}
-            </small>
         </div>
     );
 }
