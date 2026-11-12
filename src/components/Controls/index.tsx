@@ -5,6 +5,8 @@ import styles from "./styles.module.css";
 type Props = {
     jsonProcessLabel: string;
     onJsonProcess: () => void;
+    helpLabel: string;
+    onHelp: () => void;
     paceTimeLimitLabel: string;
     paceTimeLimit: string;
     onPaceTimeLimitChange: (value: string) => void;
@@ -20,6 +22,8 @@ export function Controls(
     {
         jsonProcessLabel,
         onJsonProcess,
+        helpLabel,
+        onHelp,
         paceTimeLimitLabel,
         paceTimeLimit,
         onPaceTimeLimitChange,
@@ -42,36 +46,49 @@ export function Controls(
                 type="button"
             />
 
-            <label htmlFor={id} className={styles.label}>{paceTimeLimitLabel}</label>
-            <input
-                id={id}
-                className={styles.text}
-                value={paceTimeLimit}
-                onChange={(e) => onPaceTimeLimitChange(e.target.value)}
-                type="text"
-                inputMode="numeric"
-            />
+            <div className="styles.textWrapper">
+                <label htmlFor={id} className={styles.label}>{paceTimeLimitLabel}</label>
+                <input
+                    id={id}
+                    className={styles.text}
+                    value={paceTimeLimit}
+                    onChange={(e) => onPaceTimeLimitChange(e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                />
+            </div>
+
+            <div className="styles.textWrapper">
+                <label htmlFor={id} className={styles.label}>{smoothNeighboursCountLabel}</label>
+                <input
+                    id={id}
+                    className={styles.text}
+                    value={smoothNeighboursCount}
+                    onChange={(e) => onSmoothNeighboursCountChange(e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                />
+            </div>
+                
+            <div className="styles.textWrapper">
+                <label htmlFor={id} className={styles.label}>{smoothMaxDeviationLabel}</label>
+                <input
+                    id={id}
+                    className={styles.text}
+                    value={smoothMaxDeviation}
+                    onChange={(e) => onSmoothMaxDeviationChange(e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                />
+            </div>
             
-            <label htmlFor={id} className={styles.label}>{smoothNeighboursCountLabel}</label>
             <input
-                id={id}
-                className={styles.text}
-                value={smoothNeighboursCount}
-                onChange={(e) => onSmoothNeighboursCountChange(e.target.value)}
-                type="text"
-                inputMode="numeric"
+                className={styles.button}
+                onClick={() => onHelp()}
+                value={helpLabel}
+                type="button"
             />
-            
-            <label htmlFor={id} className={styles.label}>{smoothMaxDeviationLabel}</label>
-            <input
-                id={id}
-                className={styles.text}
-                value={smoothMaxDeviation}
-                onChange={(e) => onSmoothMaxDeviationChange(e.target.value)}
-                type="text"
-                inputMode="numeric"
-            />
-            
+
         </div>
     );
 }

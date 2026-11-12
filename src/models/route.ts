@@ -30,7 +30,7 @@ class Route {
 
     private _paceTimeLimit: number = 30;
     private _smoothNeighboursCount: number = 4;
-    private _smoothMaxDeviation: number = 0.1;
+    private _smoothMaxDeviation: number = 10;
 
     constructor() {
 
@@ -124,7 +124,8 @@ class Route {
             };
         });
 
-        this.smoothTrackData(this.getSmoothNeighboursCount(), this.getSmoothMaxDeviation());
+        const smoothMaxDeviationAsNumber: number = this.getSmoothMaxDeviation() / 100;
+        this.smoothTrackData(this.getSmoothNeighboursCount(), smoothMaxDeviationAsNumber);
     }
 
     private getTotalTime(points: Point[]): number {
@@ -141,7 +142,7 @@ class Route {
         );
     }
 
-    private smoothTrackData(neighboursCount: number = 3, maxDeviation: number = 0.1) {
+    private smoothTrackData(neighboursCount: number, maxDeviation: number) {
         if (neighboursCount < 1 || maxDeviation <= 0)
             return;
         const pointsCount = neighboursCount * 2 + 1;

@@ -98,7 +98,7 @@ describe("Route pace", () => {
         const route = new Route();
         expect(route.getPaceTimeLimit()).toBe(30);
         expect(route.getSmoothNeighboursCount()).toBe(4);
-        expect(route.getSmoothMaxDeviation()).toBe(0.1);
+        expect(route.getSmoothMaxDeviation()).toBe(10);
     });
 });
 
