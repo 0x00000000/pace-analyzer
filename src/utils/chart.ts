@@ -10,21 +10,19 @@ export type YRange = {
     maxY: number;
 };
 
-// Y axis range. Normally 0 to the max. With `robust` (used for pace), the bottom is the lowest
-// value in the track, so there's no empty band under the line, and the top is the 95th
-// percentile plus headroom, so a few spikes (such as near-standstill pace) don't flatten the
-// rest of the line. The clip path cuts off anything above the top.
-export function computeYRange(values: number[], robust: boolean): YRange {
+// Y axis range. Normally 0 to the max. With `tight` (used for pace), the bottom is the lowest
+// value in the track, so there's no empty band under the line. The top is always the highest
+// value plus a little headroom, so the whole line, including its peaks, stays visible.
+export function computeYRange(values: number[], tight: boolean): YRange {
     if (values.length === 0) {
         return { minY: 0, maxY: 1 };
     }
-    if (!robust) {
-        return { minY: 0, maxY: Math.max(0, ...values) || 1 };
+    const max = Math.max(...values);
+    if (!tight) {
+        return { minY: 0, maxY: Math.max(0, max) || 1 };
     }
-    const sorted = [...values].sort((a, b) => a - b);
-    const minY = sorted[0];
-    const p95 = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))];
-    const maxY = minY + (p95 - minY) * 1.1;
+    const minY = Math.min(...values);
+    const maxY = max + (max - minY) * 0.05;
     // A flat line (all values equal) still needs a non-zero range to scale against.
     return { minY, maxY: maxY > minY ? maxY : minY + 1 };
 }

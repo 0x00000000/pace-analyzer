@@ -31,11 +31,11 @@ function App() {
       newRoute.setPaceTimeLimit(limit);
     }
     const neighboursCount = Number(smoothNeighboursCount);
-    if (Number.isFinite(neighboursCount) && neighboursCount > 0) {
+    if (Number.isFinite(neighboursCount)) {
       newRoute.setSmoothNeighboursCount(neighboursCount);
     }
     const maxDeviation = Number(smoothMaxDeviation);
-    if (Number.isFinite(maxDeviation) && maxDeviation > 0) {
+    if (Number.isFinite(maxDeviation)) {
       newRoute.setSmoothMaxDeviation(maxDeviation);
     }
 

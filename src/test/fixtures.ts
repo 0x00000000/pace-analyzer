@@ -36,5 +36,5 @@ export function steady(count: number, deltaTime = 1000, deltaDistance = 3): Step
 
 // A TrackData point with only the fields a test cares about set.
 export function trackPoint(fields: Partial<TrackData>): TrackData {
-    return { time: 0, distance: 0, pace: 0, deltaDistance: 0, lat: 0, lon: 0, ...fields };
+    return { time: 0, distance: 0, pace: 0, lat: 0, lon: 0, ...fields };
 }

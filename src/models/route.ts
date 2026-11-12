@@ -1,4 +1,4 @@
-type Point = {
+type RenkeeperPoint = {
     accuracy: number;
     altitude: number;
     deltaDistance: number;
@@ -10,21 +10,26 @@ type Point = {
     type: string;
 };
 
+type Point = {
+    deltaDistance: number;
+    deltaTime: number;
+    lat: number;
+    lon: number;
+};
+
 type TrackData = {
     time: number;
     distance: number;
     pace: number;
-    deltaDistance: number;
     lat: number;
     lon: number;
 };
 
 class Route {
-    private _points: Point[] = [];
     private _trackData: TrackData[] = [];
 
-    private _paceTimeLimit: number = 30000;
-    private _smoothNeighboursCount: number = 3;
+    private _paceTimeLimit: number = 30;
+    private _smoothNeighboursCount: number = 4;
     private _smoothMaxDeviation: number = 0.1;
 
     constructor() {
@@ -60,62 +65,80 @@ class Route {
     }
 
     public getPaceAsString(pace: number): string {
-        // Round to whole seconds first, so 5.999 becomes 6:00 and not 5:60.
-        const totalSeconds = Math.round(pace * 60);
+        const totalSeconds = Math.round(pace * 60); // min to sec
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
         return minutes.toString() + ":" + seconds.toString().padStart(2, '0');
     }
 
-    public loadData(jsonString: string): void {
-        let parsed;
+    public loadData(data: string): void {
+        this.loadRunkeeperData(data);
+    }
+
+    private loadRunkeeperData(jsonString: string): void {
+        this.clearTrackData();
         try {
-            parsed = JSON.parse(jsonString);
-            if (parsed.points) {
-                this._points = parsed.points;
-            } else {
-                this._points = [];
+            const parsed = JSON.parse(jsonString);
+            if (parsed.points && Array.isArray(parsed.points)) {
+                const points: Point[] = parsed.points.map(
+                    (item: RenkeeperPoint) => ({
+                        deltaTime: item.deltaTime,
+                        deltaDistance: item.deltaDistance,
+                        lat: item.latitude,
+                        lon: item.longitude,
+                    })
+                );
+                this.initTrackData(points);
             }
-            this.initTrackData();
         } catch (e) {
-            console.log((e as Error).message);
+            console.log("Couldn't load data. " + (e as Error).message);
         }
     }
 
-    private initTrackData(): void {
+    private clearTrackData(): void {
+        this._trackData = [];
+    }
+
+    private initTrackData(points: Point[]): void {
         let totalTime = 0;
         let totalDistance = 0;
         let paceData: Point[] = [];
-        this._trackData = this._points.map(item => {
+        this._trackData = points.map(item => {
             totalTime += item.deltaTime;
             totalDistance += item.deltaDistance;
+            const limitMilliseconds = this.getPaceTimeLimit() * 1000;
+
             paceData.push(item);
-            let paceTime: number = paceData.reduce(
-                (previousValue, currentValue) => previousValue + currentValue.deltaTime,
-                0
-            );
-            if (paceTime > this._paceTimeLimit) {
+            let paceTime: number = this.getTotalTime(paceData);
+            if (paceTime > limitMilliseconds) {
                 paceData.shift();
-                paceTime = paceData.reduce(
-                    (previousValue, currentValue) => previousValue + currentValue.deltaTime,
-                    0
-                );
+                paceTime = this.getTotalTime(paceData);
             }
-            let paceDistance = paceData.reduce(
-                (previousValue, currentValue) => previousValue + currentValue.deltaDistance,
-                0
-            );
+            const paceDistance = this.getTotalDistance(paceData);
             return {
                 time: totalTime,
                 distance: totalDistance,
                 pace: this.calculatePace(paceTime, paceDistance),
-                deltaDistance: item.deltaDistance,
-                lat: item.latitude,
-                lon: item.longitude,
+                lat: item.lat,
+                lon: item.lon,
             };
         });
 
         this.smoothTrackData(this.getSmoothNeighboursCount(), this.getSmoothMaxDeviation());
+    }
+
+    private getTotalTime(points: Point[]): number {
+        return points.reduce(
+            (previousValue, currentValue) => previousValue + currentValue.deltaTime,
+            0
+        );
+    }
+
+    private getTotalDistance(points: Point[]): number {
+        return points.reduce(
+            (previousValue, currentValue) => previousValue + currentValue.deltaDistance,
+            0
+        );
     }
 
     private smoothTrackData(neighboursCount: number = 3, maxDeviation: number = 0.1) {

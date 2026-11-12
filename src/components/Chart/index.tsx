@@ -16,8 +16,8 @@ type Props = {
     xAxisLabel: string;
     yAxisLabel: string;
     // Which TrackData fields go on each axis.
-    xKey: "time" | "distance";
-    yKey: "deltaDistance" | "pace";
+    xKey: "distance";
+    yKey: "pace";
     formatX: (value: number) => string;
     formatY: (value: number) => string;
     // The narrowest visible X window, in X units (ms for time, m for distance).
@@ -383,7 +383,6 @@ export function Chart(
                 </div>}
             </div>
 
-            {/* The map sits to the right of the graph and the stats, and highlights its visible window */}
             {showDetails && <div className={styles.map}>
                 <TrackMap
                     points={data}

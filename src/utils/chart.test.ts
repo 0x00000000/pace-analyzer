@@ -17,13 +17,14 @@ describe("computeYRange", () => {
         expect(computeYRange([0, 0], false)).toEqual({ minY: 0, maxY: 1 });
     });
 
-    it("starts at the min and ignores spikes above the 95th percentile when robust", () => {
+    it("goes from the min to the max plus headroom when tight", () => {
         const values = Array.from({ length: 100 }, (_, i) => i + 1);
-        values.push(10_000);
+        values.push(201);
         const { minY, maxY } = computeYRange(values, true);
         expect(minY).toBe(1);
-        // sorted[floor(101 * 0.95)] = sorted[95] = 96; 1 + (96 - 1) * 1.1
-        expect(maxY).toBeCloseTo(105.5);
+        // 201 + (201 - 1) * 0.05
+        expect(maxY).toBeCloseTo(211);
+        expect(maxY).toBeGreaterThanOrEqual(Math.max(...values));
     });
 
     it("gives a flat line a non-zero range", () => {
