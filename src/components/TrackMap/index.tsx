@@ -1,47 +1,45 @@
 import { useMemo } from "react";
 
 import type { TrackData } from "../../models/route";
-import { lonScaleFor, projectPoint, visibleSegment } from "../../utils/geo";
-import type { ProjectedPoint } from "../../utils/geo";
+import { lonScaleFor, projectPoint, visibleSegment } from "../../utils/trackMap";
+import type { ProjectedPoint } from "../../utils/trackMap";
 
 import styles from "./styles.module.css";
 
 type Props = {
-    points: TrackData[];
-    // Visible time window from the graph, ms. This part of the track is drawn in `color`, the rest in gray.
-    start: number;
-    end: number;
-    color: string;
-    // The current position (the point under the mouse on the graph, or the last one it was over), or null for none.
-    current?: TrackData | null;
+    trackPoints: TrackData[];
+    highlightedСolor: string;
+    highlightedFromTime: number;
+    highlightedToTime: number;
+    currentPoint?: TrackData | null;
 };
 
-const SIZE = 400;
-const PADDING = 20;
+const SIZE: number = 400;
+const PADDING: number = 20;
 // Smallest area the map zooms to, in degrees of latitude (about 50 m).
-const MIN_EXTENT = 0.00045;
-const POINTER_RADIUS = 6;
+const MIN_EXTENT: number = 0.00045;
+const POINTER_RADIUS: number = 6;
 
 export function TrackMap(
     {
-        points,
-        start,
-        end,
-        color,
-        current = null,
+        trackPoints,
+        highlightedСolor,
+        highlightedFromTime,
+        highlightedToTime,
+        currentPoint = null,
     }: Props
 ) {
-    const lonScale = useMemo(() => lonScaleFor(points), [points]);
+    const lonScale = useMemo(() => lonScaleFor(trackPoints), [trackPoints]);
     const projected = useMemo(
-        () => points.map(p => projectPoint(p, lonScale)),
-        [points, lonScale],
+        () => trackPoints.map(p => projectPoint(p, lonScale)),
+        [trackPoints, lonScale],
     );
 
     if (projected.length === 0) {
         return null;
     }
 
-    const visible = visibleSegment(projected, start, end);
+    const highlightedSegment = visibleSegment(projected, highlightedFromTime, highlightedToTime);
 
     // The map always fits the whole track (it doesn't follow the graph's zoom),
     // grown to the minimum size if needed.
@@ -61,7 +59,7 @@ export function TrackMap(
     const toSvgY = (p: ProjectedPoint) => SIZE / 2 + (p.y - centerY) * scale;
     const toSvg = (p: ProjectedPoint) => `${toSvgX(p)},${toSvgY(p)}`;
 
-    const pointer = current ? projectPoint(current, lonScale) : null;
+    const pointer = currentPoint ? projectPoint(currentPoint, lonScale) : null;
 
     return (
         <svg
@@ -71,7 +69,6 @@ export function TrackMap(
             aria-label="Track map"
         >
             <rect className={styles.background} width={SIZE} height={SIZE} />
-            {/* The whole track in gray; the part visible on the graph is drawn over it in color */}
             <polyline
                 className={styles.track}
                 points={projected.map(toSvg).join(" ")}
@@ -81,9 +78,9 @@ export function TrackMap(
                 strokeLinecap="round"
             />
             <polyline
-                points={visible.map(toSvg).join(" ")}
+                points={highlightedSegment.map(toSvg).join(" ")}
                 fill="none"
-                stroke={color}
+                stroke={highlightedСolor}
                 strokeWidth={4}
                 strokeLinejoin="round"
                 strokeLinecap="round"
@@ -94,7 +91,7 @@ export function TrackMap(
                     cx={toSvgX(pointer)}
                     cy={toSvgY(pointer)}
                     r={POINTER_RADIUS}
-                    fill={color}
+                    fill={highlightedСolor}
                 />
             )}
         </svg>

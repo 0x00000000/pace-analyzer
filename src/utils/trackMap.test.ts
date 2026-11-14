@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { lonScaleFor, projectPoint, visibleSegment } from "./geo";
-import type { ProjectedPoint } from "./geo";
+import { lonScaleFor, projectPoint, visibleSegment } from "./trackMap";
+import type { ProjectedPoint } from "./trackMap";
 import { trackPoint } from "../test/fixtures";
 
 describe("lonScaleFor", () => {

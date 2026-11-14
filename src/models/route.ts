@@ -28,36 +28,45 @@ type TrackData = {
 class Route {
     private _trackData: TrackData[] = [];
 
-    private _paceTimeLimit: number = 30;
+    private _paceWindow: number = 30;
     private _smoothNeighboursCount: number = 4;
     private _smoothMaxDeviation: number = 10;
+    private _paceLimit: number = 10;
 
     constructor() {
 
     }
 
-    public getPaceTimeLimit(): number {
-        return this._paceTimeLimit;
+    public getPaceWindow(): number {
+        return this._paceWindow;
     }
 
-    public setPaceTimeLimit(limit: number): void {
-        this._paceTimeLimit = limit;
+    public setPaceWindow(paceWindow: number): void {
+        this._paceWindow = paceWindow;
     }
 
     public getSmoothNeighboursCount(): number {
         return this._smoothNeighboursCount;
     }
 
-    public setSmoothNeighboursCount(limit: number): void {
-        this._smoothNeighboursCount = limit;
+    public setSmoothNeighboursCount(neighboursCount: number): void {
+        this._smoothNeighboursCount = neighboursCount;
     }
 
     public getSmoothMaxDeviation(): number {
         return this._smoothMaxDeviation;
     }
 
-    public setSmoothMaxDeviation(limit: number): void {
-        this._smoothMaxDeviation = limit;
+    public setSmoothMaxDeviation(maxDeviation: number): void {
+        this._smoothMaxDeviation = maxDeviation;
+    }
+
+    public getPaceLimit(): number {
+        return this._paceLimit;
+    }
+
+    public setPaceLimit(paceLimit: number): void {
+        this._paceLimit = paceLimit;
     }
 
     public getTrackData(): TrackData[] {
@@ -106,7 +115,7 @@ class Route {
         this._trackData = points.map(item => {
             totalTime += item.deltaTime;
             totalDistance += item.deltaDistance;
-            const limitMilliseconds = this.getPaceTimeLimit() * 1000;
+            const limitMilliseconds = this.getPaceWindow() * 1000;
 
             paceData.push(item);
             let paceTime: number = this.getTotalTime(paceData);

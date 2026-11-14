@@ -7,7 +7,7 @@ import { makeRun, steady } from "../test/fixtures";
 const pace = (ms: number, m: number) => (ms / 60_000) / (m / 1000);
 
 type Options = {
-    paceTimeLimit?: number;
+    paceWindow?: number;
     smoothNeighboursCount?: number;
     smoothMaxDeviation?: number;
 };
@@ -15,8 +15,8 @@ type Options = {
 // Loads a run. The settings must be set before loadData, which computes the pace.
 function load(json: string, options: Options = {}): Route {
     const route = new Route();
-    if (options.paceTimeLimit !== undefined) {
-        route.setPaceTimeLimit(options.paceTimeLimit);
+    if (options.paceWindow !== undefined) {
+        route.setPaceWindow(options.paceWindow);
     }
     if (options.smoothNeighboursCount !== undefined) {
         route.setSmoothNeighboursCount(options.smoothNeighboursCount);
@@ -90,13 +90,13 @@ describe("Route pace", () => {
         expect(wide[5].pace).toBeCloseTo(pace(5000, 16));
 
         // A 1 s window only sees the last fast steps.
-        const narrow = load(json, { paceTimeLimit: 1 }).getTrackData();
+        const narrow = load(json, { paceWindow: 1 }).getTrackData();
         expect(narrow[5].pace).toBeCloseTo(pace(1000, 4));
     });
 
     it("has default pace and smoothing settings", () => {
         const route = new Route();
-        expect(route.getPaceTimeLimit()).toBe(30);
+        expect(route.getPaceWindow()).toBe(30);
         expect(route.getSmoothNeighboursCount()).toBe(4);
         expect(route.getSmoothMaxDeviation()).toBe(10);
     });
@@ -109,23 +109,23 @@ describe("Route smoothing", () => {
     const rawSpike = pace(2000, 4);
 
     it("flattens a single spike", () => {
-        const data = load(spikyRun, { paceTimeLimit: 1 }).getTrackData();
+        const data = load(spikyRun, { paceWindow: 1 }).getTrackData();
         expect(data[10].pace).toBeLessThan(rawSpike);
         expect(data[10].pace).toBeGreaterThan(pace(1000, 3));
     });
 
     it("is turned off by a neighbour count below 1 or a max deviation of 0", () => {
-        const off1 = load(spikyRun, { paceTimeLimit: 1, smoothNeighboursCount: 0 });
+        const off1 = load(spikyRun, { paceWindow: 1, smoothNeighboursCount: 0 });
         expect(off1.getTrackData()[10].pace).toBeCloseTo(rawSpike);
-        const off2 = load(spikyRun, { paceTimeLimit: 1, smoothMaxDeviation: 0 });
+        const off2 = load(spikyRun, { paceWindow: 1, smoothMaxDeviation: 0 });
         expect(paces(off2)).toEqual(paces(off1));
     });
 
     it("leaves tracks shorter than the neighbourhood alone", () => {
         // 6 points, fewer than the 9 that 4 neighbours on each side need.
         const json = makeRun([...steady(2, 1000, 2), ...steady(3, 1000, 4)]);
-        const smoothed = load(json, { paceTimeLimit: 1 });
-        const raw = load(json, { paceTimeLimit: 1, smoothNeighboursCount: 0 });
+        const smoothed = load(json, { paceWindow: 1 });
+        const raw = load(json, { paceWindow: 1, smoothNeighboursCount: 0 });
         expect(paces(smoothed)).toEqual(paces(raw));
     });
 });

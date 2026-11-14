@@ -13,10 +13,19 @@ export type YRange = {
 // Y axis range. Normally 0 to the max. With `tight` (used for pace), the bottom is the lowest
 // value in the track, so there's no empty band under the line. The top is always the highest
 // value plus a little headroom, so the whole line, including its peaks, stays visible.
-export function computeYRange(values: number[], tight: boolean): YRange {
+// The top never goes above `limit`: values over it are cut off by the plot area.
+export function computeYRange(values: number[], tight: boolean, limit: number = Infinity): YRange {
     if (values.length === 0) {
         return { minY: 0, maxY: 1 };
     }
+    const range = computeUnlimitedYRange(values.map(v => Math.min(v, limit)), tight);
+    // Only cap when that still leaves a non-zero range (not when every value is over the limit).
+    return range.maxY > limit && limit > range.minY
+        ? { minY: range.minY, maxY: limit }
+        : range;
+}
+
+function computeUnlimitedYRange(values: number[], tight: boolean): YRange {
     const max = Math.max(...values);
     if (!tight) {
         return { minY: 0, maxY: Math.max(0, max) || 1 };

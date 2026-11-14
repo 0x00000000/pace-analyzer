@@ -30,6 +30,19 @@ describe("computeYRange", () => {
     it("gives a flat line a non-zero range", () => {
         expect(computeYRange([4, 4, 4], true)).toEqual({ minY: 4, maxY: 5 });
     });
+
+    it("never puts the top above the limit", () => {
+        expect(computeYRange([4, 6, 30], true, 10)).toEqual({ minY: 4, maxY: 10 });
+        expect(computeYRange([1, 5, 30], false, 10)).toEqual({ minY: 0, maxY: 10 });
+    });
+
+    it("keeps the headroom when every value is under the limit", () => {
+        expect(computeYRange([5, 7], true, 10).maxY).toBeCloseTo(7.1);
+    });
+
+    it("still gives a non-zero range when every value is over the limit", () => {
+        expect(computeYRange([12, 15], true, 10)).toEqual({ minY: 10, maxY: 11 });
+    });
 });
 
 describe("nearestIndex", () => {

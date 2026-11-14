@@ -7,15 +7,18 @@ type Props = {
     onJsonProcess: () => void;
     helpLabel: string;
     onHelp: () => void;
-    paceTimeLimitLabel: string;
-    paceTimeLimit: string;
-    onPaceTimeLimitChange: (value: string) => void;
+    paceWindowLabel: string;
+    paceWindow: string;
+    onPaceWindowChange: (value: string) => void;
     smoothNeighboursCountLabel: string;
     smoothNeighboursCount: string;
     onSmoothNeighboursCountChange: (value: string) => void;
     smoothMaxDeviationLabel: string;
     smoothMaxDeviation: string;
     onSmoothMaxDeviationChange: (value: string) => void;
+    paceLimitLabel: string;
+    paceLimit: string;
+    onPaceLimitChange: (value: string) => void;
 };
 
 export function Controls(
@@ -24,15 +27,18 @@ export function Controls(
         onJsonProcess,
         helpLabel,
         onHelp,
-        paceTimeLimitLabel,
-        paceTimeLimit,
-        onPaceTimeLimitChange,
+        paceWindowLabel,
+        paceWindow,
+        onPaceWindowChange,
         smoothNeighboursCountLabel,
         smoothNeighboursCount,
         onSmoothNeighboursCountChange,
         smoothMaxDeviationLabel,
         smoothMaxDeviation,
         onSmoothMaxDeviationChange,
+        paceLimitLabel,
+        paceLimit,
+        onPaceLimitChange,
     }: Props
 ) {
     const id = useId();
@@ -47,12 +53,12 @@ export function Controls(
             />
 
             <div className="styles.textWrapper">
-                <label htmlFor={id} className={styles.label}>{paceTimeLimitLabel}</label>
+                <label htmlFor={id} className={styles.label}>{paceWindowLabel}</label>
                 <input
                     id={id}
                     className={styles.text}
-                    value={paceTimeLimit}
-                    onChange={(e) => onPaceTimeLimitChange(e.target.value)}
+                    value={paceWindow}
+                    onChange={(e) => onPaceWindowChange(e.target.value)}
                     type="text"
                     inputMode="numeric"
                 />
@@ -82,6 +88,18 @@ export function Controls(
                 />
             </div>
             
+            <div className="styles.textWrapper">
+                <label htmlFor={id} className={styles.label}>{paceLimitLabel}</label>
+                <input
+                    id={id}
+                    className={styles.text}
+                    value={paceLimit}
+                    onChange={(e) => onPaceLimitChange(e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                />
+            </div>
+
             <input
                 className={styles.button}
                 onClick={() => onHelp()}

@@ -14,8 +14,8 @@ function App() {
   const [jsonPoints, setJsonPoints] = useState("");
   const [route, setRoute] = useState<Route>(() => new Route());
   // Starts at the Route model's default.
-  const [paceTimeLimit, setPaceTimeLimit] = useState(
-    () => String(route.getPaceTimeLimit())
+  const [paceWindow, setPaceWindow] = useState(
+    () => String(route.getPaceWindow())
   );
   const [smoothNeighboursCount, setSmoothNeighboursCount] = useState(
     () => String(route.getSmoothNeighboursCount())
@@ -23,14 +23,17 @@ function App() {
   const [smoothMaxDeviation, setSmoothMaxDeviation] = useState(
     () => String(route.getSmoothMaxDeviation())
   );
+  const [paceLimit, setPaceLimit] = useState(
+    () => String(route.getPaceLimit())
+  );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const handleJsonProcess = () => {
     const newRoute = new Route();
     // Must be set before loadData, which computes the pace. An empty or invalid value keeps the Route's default.
-    const limit = Number(paceTimeLimit);
+    const limit = Number(paceWindow);
     if (Number.isFinite(limit) && limit > 0) {
-      newRoute.setPaceTimeLimit(limit);
+      newRoute.setPaceWindow(limit);
     }
     const neighboursCount = Number(smoothNeighboursCount);
     if (Number.isFinite(neighboursCount)) {
@@ -39,6 +42,10 @@ function App() {
     const maxDeviation = Number(smoothMaxDeviation);
     if (Number.isFinite(maxDeviation)) {
       newRoute.setSmoothMaxDeviation(maxDeviation);
+    }
+    const upperPaceLimit = Number(paceLimit);
+    if (Number.isFinite(upperPaceLimit) && upperPaceLimit > 0) {
+      newRoute.setPaceLimit(upperPaceLimit);
     }
 
     newRoute.loadData(jsonPoints);
@@ -66,15 +73,18 @@ function App() {
         onJsonProcess={handleJsonProcess}
         helpLabel="Help"
         onHelp={handleHelp}
-        paceTimeLimitLabel="Pace window (sec)"
-        paceTimeLimit={paceTimeLimit}
-        onPaceTimeLimitChange={setPaceTimeLimit}
+        paceWindowLabel="Pace window (sec)"
+        paceWindow={paceWindow}
+        onPaceWindowChange={setPaceWindow}
         smoothNeighboursCountLabel="Neighbours count"
         smoothNeighboursCount={smoothNeighboursCount}
         onSmoothNeighboursCountChange={setSmoothNeighboursCount}
         smoothMaxDeviationLabel="Max deviation (%)"
         smoothMaxDeviation={smoothMaxDeviation}
         onSmoothMaxDeviationChange={setSmoothMaxDeviation}
+        paceLimitLabel="Pace upper limit (min)"
+        paceLimit={paceLimit}
+        onPaceLimitChange={setPaceLimit}
       />
 
       <Chart
@@ -96,12 +106,13 @@ function App() {
       >
         <h4>With this tool you can analyse your running activity from Runkeeper.</h4>
         <p>Paste the JSON from /ajax/pointData for your running activity into the input above.</p>
-        <p>Press <strong>Process</strong> to see the graph.</p>
+        <p>Press <strong>Process</strong> to see ro update the graph.</p>
         <p> <br/></p>
         <p><strong>You can change these values to get a smoother graph:</strong></p>
         <p><strong>Pace window</strong> - calculates the pace over this period of time.</p>
         <p><strong>Neighbours count</strong> - takes the average pace of the neighbours before and after each point.</p>
         <p><strong>Max deviation</strong> - if the deviation of the clothes neighbours before and after the point is bigger than this value, the average pace isn't used.</p>
+        <p><strong>Pace upper limit (min)</strong> - the graph don't show pace values bigger that this limit.</p>
       </InfoBox>
     </>
   )

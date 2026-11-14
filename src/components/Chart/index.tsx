@@ -101,10 +101,13 @@ export function Chart(
         [data, yKey],
     );
 
+    // Pace above the route's limit (e.g. walking or standing) is cut off at the top of the graph.
+    const yLimit = yKey === "pace" ? route.getPaceLimit() : Infinity;
+
     const { maxX, minY, maxY } = useMemo(() => ({
         maxX: Math.max(0, ...data.map(d => d[xKey])) || 1,
-        ...computeYRange(plotted.map(d => d[yKey]), yKey === "pace"),
-    }), [data, plotted, xKey, yKey]);
+        ...computeYRange(plotted.map(d => d[yKey]), yKey === "pace", yLimit),
+    }), [data, plotted, xKey, yKey, yLimit]);
 
     const minSpan = Math.min(minSpanProp, maxX);
 
@@ -385,11 +388,11 @@ export function Chart(
 
             {showDetails && <div className={styles.map}>
                 <TrackMap
-                    points={data}
-                    start={mapStart}
-                    end={mapEnd}
-                    color={color}
-                    current={current}
+                    trackPoints={data}
+                    highlightedСolor={color}
+                    highlightedFromTime={mapStart}
+                    highlightedToTime={mapEnd}
+                    currentPoint={current}
                 />
             </div>}
         </div>
