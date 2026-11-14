@@ -3,6 +3,8 @@ import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Relative asset paths, so the build works from any folder on the host
+  base: './',
   plugins: [react()],
   test: {
     environment: 'jsdom',
