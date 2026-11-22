@@ -115,13 +115,13 @@ function App() {
       >
         <h4>With this tool you can analyse your running activity from Runkeeper.</h4>
         <p>Paste the JSON from /ajax/pointData for your running activity into the input above.</p>
-        <p>Press <strong>Process</strong> to see ro update the graph.</p>
+        <p>Press <strong>Process</strong> to see or update the graph.</p>
         <p> <br/></p>
         <p><strong>You can change these values to get a smoother graph:</strong></p>
         <p><strong>Pace window</strong> - calculates the pace over this period of time.</p>
         <p><strong>Neighbours count</strong> - takes the average pace of the neighbours before and after each point.</p>
-        <p><strong>Max deviation</strong> - if the deviation of the clothes neighbours before and after the point is bigger than this value, the average pace isn't used.</p>
-        <p><strong>Pace upper limit (min)</strong> - the graph don't show pace values bigger that this limit.</p>
+        <p><strong>Max deviation</strong> - if the deviation of the closest neighbours before and after the point is bigger than this value, the average pace isn't used.</p>
+        <p><strong>Pace upper limit (min)</strong> - the graph doesn't show pace values bigger than this limit.</p>
       </InfoBox>
     </>
   )

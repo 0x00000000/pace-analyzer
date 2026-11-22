@@ -1,4 +1,4 @@
-type RenkeeperPoint = {
+type RunkeeperPoint = {
     accuracy: number;
     altitude: number;
     deltaDistance: number;
@@ -26,7 +26,7 @@ type TrackData = {
 };
 
 // Checks the fields the track is built from. The rest of the point isn't used.
-function isRunkeeperPoint(item: unknown): item is RenkeeperPoint {
+function isRunkeeperPoint(item: unknown): item is RunkeeperPoint {
     if (typeof item !== "object" || item === null) {
         return false;
     }
@@ -187,7 +187,7 @@ class Route {
         if (this._trackData.length < pointsCount)
             return;
 
-        const averagePace: number[] = this.calculageEveragePaceList(neighboursCount);
+        const averagePace: number[] = this.calculateEveragePaceList(neighboursCount);
 
         for (let i = neighboursCount; i < this._trackData.length - neighboursCount; i++) {
             if (averagePace[i] === 0)
@@ -204,7 +204,7 @@ class Route {
         return distance ? ((time / 60000) / (distance / 1000)) : 0;
     }
 
-    private calculageEveragePaceList(neighboursCount: number): number[] {
+    private calculateEveragePaceList(neighboursCount: number): number[] {
         const averagePace: number[] = [];
         const pointsCount = neighboursCount * 2 + 1;
         for (let i = 0; i < this._trackData.length; i++) {
