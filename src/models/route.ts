@@ -25,6 +25,16 @@ type TrackData = {
     lon: number;
 };
 
+// Checks the fields the track is built from. The rest of the point isn't used.
+function isRunkeeperPoint(item: unknown): item is RenkeeperPoint {
+    if (typeof item !== "object" || item === null) {
+        return false;
+    }
+    const p = item as Record<string, unknown>;
+    return ["deltaTime", "deltaDistance", "latitude", "longitude"]
+        .every(key => typeof p[key] === "number" && Number.isFinite(p[key]));
+}
+
 class Route {
     private _trackData: TrackData[] = [];
 
@@ -80,28 +90,47 @@ class Route {
         return minutes.toString() + ":" + seconds.toString().padStart(2, '0');
     }
 
+    // Throws an Error with a message meant for the user when the data can't be loaded.
+    // The track data is cleared first, so it's empty after a failed load.
     public loadData(data: string): void {
         this.loadRunkeeperData(data);
     }
 
     private loadRunkeeperData(jsonString: string): void {
         this.clearTrackData();
-        try {
-            const parsed = JSON.parse(jsonString);
-            if (parsed.points && Array.isArray(parsed.points)) {
-                const points: Point[] = parsed.points.map(
-                    (item: RenkeeperPoint) => ({
-                        deltaTime: item.deltaTime,
-                        deltaDistance: item.deltaDistance,
-                        lat: item.latitude,
-                        lon: item.longitude,
-                    })
-                );
-                this.initTrackData(points);
-            }
-        } catch (e) {
-            console.log("Couldn't load data. " + (e as Error).message);
+        if (jsonString.trim() === "") {
+            throw new Error("Paste the JSON of a Runkeeper activity first.");
         }
+
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(jsonString);
+        } catch (e) {
+            throw new Error("This isn't valid JSON: " + (e as Error).message, { cause: e });
+        }
+
+        const rawPoints = typeof parsed === "object" && parsed !== null
+            ? (parsed as { points?: unknown }).points
+            : undefined;
+        if (!Array.isArray(rawPoints)) {
+            throw new Error("No \"points\" list found. Paste the JSON from Runkeeper's /ajax/pointData.");
+        }
+        if (rawPoints.length === 0) {
+            throw new Error("The activity has no GPS points.");
+        }
+
+        const points: Point[] = rawPoints.map((item: unknown, i: number) => {
+            if (!isRunkeeperPoint(item)) {
+                throw new Error(`Point ${i + 1} is missing deltaTime, deltaDistance, latitude or longitude.`);
+            }
+            return {
+                deltaTime: item.deltaTime,
+                deltaDistance: item.deltaDistance,
+                lat: item.latitude,
+                lon: item.longitude,
+            };
+        });
+        this.initTrackData(points);
     }
 
     private clearTrackData(): void {
@@ -111,7 +140,7 @@ class Route {
     private initTrackData(points: Point[]): void {
         let totalTime = 0;
         let totalDistance = 0;
-        let paceData: Point[] = [];
+        const paceData: Point[] = [];
         this._trackData = points.map(item => {
             totalTime += item.deltaTime;
             totalDistance += item.deltaDistance;
@@ -119,7 +148,7 @@ class Route {
 
             paceData.push(item);
             let paceTime: number = this.getTotalTime(paceData);
-            if (paceTime > limitMilliseconds) {
+            while (paceTime > limitMilliseconds && paceData.length > 1) {
                 paceData.shift();
                 paceTime = this.getTotalTime(paceData);
             }
@@ -158,7 +187,7 @@ class Route {
         if (this._trackData.length < pointsCount)
             return;
 
-        let averagePace: number[] = this.calculageEveragePaceList(neighboursCount);
+        const averagePace: number[] = this.calculageEveragePaceList(neighboursCount);
 
         for (let i = neighboursCount; i < this._trackData.length - neighboursCount; i++) {
             if (averagePace[i] === 0)

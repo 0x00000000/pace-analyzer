@@ -41,7 +41,10 @@ export function Controls(
         onPaceLimitChange,
     }: Props
 ) {
-    const id = useId();
+    const idPaceWindow = useId();
+    const idSmoothNeighboursCount = useId();
+    const idSmoothMaxDeviation = useId();
+    const idPaceLimit = useId();
 
     return (
         <div className={styles.wrapper}>
@@ -52,10 +55,10 @@ export function Controls(
                 type="button"
             />
 
-            <div className="styles.textWrapper">
-                <label htmlFor={id} className={styles.label}>{paceWindowLabel}</label>
+            <div className={styles.textWrapper}>
+                <label htmlFor={idPaceWindow} className={styles.label}>{paceWindowLabel}</label>
                 <input
-                    id={id}
+                    id={idPaceWindow}
                     className={styles.text}
                     value={paceWindow}
                     onChange={(e) => onPaceWindowChange(e.target.value)}
@@ -64,10 +67,10 @@ export function Controls(
                 />
             </div>
 
-            <div className="styles.textWrapper">
-                <label htmlFor={id} className={styles.label}>{smoothNeighboursCountLabel}</label>
+            <div className={styles.textWrapper}>
+                <label htmlFor={idSmoothNeighboursCount} className={styles.label}>{smoothNeighboursCountLabel}</label>
                 <input
-                    id={id}
+                    id={idSmoothNeighboursCount}
                     className={styles.text}
                     value={smoothNeighboursCount}
                     onChange={(e) => onSmoothNeighboursCountChange(e.target.value)}
@@ -76,10 +79,10 @@ export function Controls(
                 />
             </div>
                 
-            <div className="styles.textWrapper">
-                <label htmlFor={id} className={styles.label}>{smoothMaxDeviationLabel}</label>
+            <div className={styles.textWrapper}>
+                <label htmlFor={idSmoothMaxDeviation} className={styles.label}>{smoothMaxDeviationLabel}</label>
                 <input
-                    id={id}
+                    id={idSmoothMaxDeviation}
                     className={styles.text}
                     value={smoothMaxDeviation}
                     onChange={(e) => onSmoothMaxDeviationChange(e.target.value)}
@@ -88,10 +91,10 @@ export function Controls(
                 />
             </div>
             
-            <div className="styles.textWrapper">
-                <label htmlFor={id} className={styles.label}>{paceLimitLabel}</label>
+            <div className={styles.textWrapper}>
+                <label htmlFor={idPaceLimit} className={styles.label}>{paceLimitLabel}</label>
                 <input
-                    id={id}
+                    id={idPaceLimit}
                     className={styles.text}
                     value={paceLimit}
                     onChange={(e) => onPaceLimitChange(e.target.value)}

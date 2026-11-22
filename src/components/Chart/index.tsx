@@ -389,7 +389,7 @@ export function Chart(
             {showDetails && <div className={styles.map}>
                 <TrackMap
                     trackPoints={data}
-                    highlightedСolor={color}
+                    highlightedColor={color}
                     highlightedFromTime={mapStart}
                     highlightedToTime={mapEnd}
                     currentPoint={current}

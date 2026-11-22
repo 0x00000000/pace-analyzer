@@ -27,6 +27,8 @@ function App() {
     () => String(route.getPaceLimit())
   );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  // Why the last Process couldn't load the pasted JSON, or null when it worked.
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const handleJsonProcess = () => {
     const newRoute = new Route();
@@ -48,7 +50,13 @@ function App() {
       newRoute.setPaceLimit(upperPaceLimit);
     }
 
-    newRoute.loadData(jsonPoints);
+    try {
+      newRoute.loadData(jsonPoints);
+      setLoadError(null);
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : String(e));
+    }
+    // Set even after a failed load, so the chart doesn't keep showing the previous activity.
     setRoute(newRoute);
   };
 
@@ -66,6 +74,7 @@ function App() {
         label=""
         value={jsonPoints}
         onChange={setJsonPoints}
+        error={loadError}
       />
 
       <Controls

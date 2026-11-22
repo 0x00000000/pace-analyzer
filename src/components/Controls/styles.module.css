@@ -20,7 +20,7 @@
 .textWrapper {
   text-align: left;
   display: flex;
-  flex-direction: column;
+  align-items: center;
 }
 
 .label {

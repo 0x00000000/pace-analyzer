@@ -8,7 +8,7 @@ import styles from "./styles.module.css";
 
 type Props = {
     trackPoints: TrackData[];
-    highlightedСolor: string;
+    highlightedColor: string;
     highlightedFromTime: number;
     highlightedToTime: number;
     currentPoint?: TrackData | null;
@@ -23,7 +23,7 @@ const POINTER_RADIUS: number = 6;
 export function TrackMap(
     {
         trackPoints,
-        highlightedСolor,
+        highlightedColor,
         highlightedFromTime,
         highlightedToTime,
         currentPoint = null,
@@ -80,7 +80,7 @@ export function TrackMap(
             <polyline
                 points={highlightedSegment.map(toSvg).join(" ")}
                 fill="none"
-                stroke={highlightedСolor}
+                stroke={highlightedColor}
                 strokeWidth={4}
                 strokeLinejoin="round"
                 strokeLinecap="round"
@@ -91,7 +91,7 @@ export function TrackMap(
                     cx={toSvgX(pointer)}
                     cy={toSvgY(pointer)}
                     r={POINTER_RADIUS}
-                    fill={highlightedСolor}
+                    fill={highlightedColor}
                 />
             )}
         </svg>

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import Route from "./route";
 import { makeRun, steady } from "../test/fixtures";
@@ -31,14 +31,6 @@ function load(json: string, options: Options = {}): Route {
 const paces = (route: Route) => route.getTrackData().map(d => d.pace);
 
 describe("Route.loadData", () => {
-    // loadData logs parse errors; keep the test output clean.
-    beforeEach(() => {
-        vi.spyOn(console, "log").mockImplementation(() => {});
-    });
-    afterEach(() => {
-        vi.restoreAllMocks();
-    });
-
     it("accumulates time and distance and keeps the position", () => {
         const data = load(makeRun(steady(3))).getTrackData();
         expect(data.map(d => d.time)).toEqual([0, 1000, 2000, 3000]);
@@ -58,16 +50,38 @@ describe("Route.loadData", () => {
         expect(data.map(d => d.time)).toEqual([0, 1000, 2000, 3000, 3000, 4000, 5000]);
     });
 
-    it("gives no track data when there are no points", () => {
-        expect(load("{}").getTrackData()).toEqual([]);
-        expect(load(JSON.stringify({ points: [] })).getTrackData()).toEqual([]);
+    it("throws on empty input", () => {
+        expect(() => load("")).toThrow(/Paste the JSON/);
+        expect(() => load("  \n ")).toThrow(/Paste the JSON/);
     });
 
-    it("clears the data and doesn't throw on invalid JSON", () => {
+    it("throws on invalid JSON", () => {
+        expect(() => load("not json")).toThrow(/isn't valid JSON/);
+    });
+
+    it("throws when there is no points list", () => {
+        expect(() => load("{}")).toThrow(/No "points" list/);
+        expect(() => load("null")).toThrow(/No "points" list/);
+        expect(() => load(JSON.stringify({ points: "x" }))).toThrow(/No "points" list/);
+    });
+
+    it("throws when the points list is empty", () => {
+        expect(() => load(JSON.stringify({ points: [] }))).toThrow(/no GPS points/);
+    });
+
+    it("throws naming the first point with a missing or non-numeric field", () => {
+        const points = JSON.parse(makeRun(steady(3))).points;
+        delete points[2].latitude;
+        expect(() => load(JSON.stringify({ points }))).toThrow(/Point 3 /);
+        points[2].latitude = 52;
+        points[1].deltaTime = "1000";
+        expect(() => load(JSON.stringify({ points }))).toThrow(/Point 2 /);
+    });
+
+    it("clears the previous data when a load fails", () => {
         const route = load(makeRun(steady(3)));
-        expect(() => route.loadData("not json")).not.toThrow();
+        expect(() => route.loadData("not json")).toThrow();
         expect(route.getTrackData()).toEqual([]);
-        expect(console.log).toHaveBeenCalled();
     });
 });
 
@@ -104,9 +118,9 @@ describe("Route pace", () => {
 
 describe("Route smoothing", () => {
     // A steady run with one slow step in the middle. A 1 s pace window keeps the raw
-    // spike sharp (8:20 min/km at the two points that include the slow step).
+    // spike sharp (16:40 min/km at the slow step).
     const spikyRun = makeRun([...steady(9), { deltaTime: 1000, deltaDistance: 1 }, ...steady(10)]);
-    const rawSpike = pace(2000, 4);
+    const rawSpike = pace(1000, 1);
 
     it("flattens a single spike", () => {
         const data = load(spikyRun, { paceWindow: 1 }).getTrackData();

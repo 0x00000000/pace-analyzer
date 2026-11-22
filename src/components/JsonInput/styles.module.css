@@ -22,3 +22,11 @@
   outline: none;
   border-color: #646cff;
 }
+
+.textarea.invalid {
+  border-color: #d93025;
+}
+
+.error {
+  color: #d93025;
+}
