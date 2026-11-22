@@ -48,12 +48,9 @@ export function Controls(
 
     return (
         <div className={styles.wrapper}>
-            <input
-                className={styles.button}
-                onClick={() => onJsonProcess()}
-                value={jsonProcessLabel}
-                type="button"
-            />
+            <button className={styles.button} onClick={() => onJsonProcess()}>
+                {jsonProcessLabel}
+            </button>
 
             <div className={styles.textWrapper}>
                 <label htmlFor={idPaceWindow} className={styles.label}>{paceWindowLabel}</label>
@@ -103,12 +100,9 @@ export function Controls(
                 />
             </div>
 
-            <input
-                className={styles.button}
-                onClick={() => onHelp()}
-                value={helpLabel}
-                type="button"
-            />
+            <button className={styles.button} onClick={() => onHelp()}>
+                {helpLabel}
+            </button>
 
         </div>
     );

@@ -1,21 +1,9 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
-}
-
+/* No padding on the dialog itself: clicks on it (outside .inner) count as backdrop clicks. */
 .box {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   width: 90%;
   max-width: 600px;
   max-height: 80vh;
-  padding: 20px;
+  padding: 0;
   background: #16171d;
   color: #ccc;
   border: 1px solid #ccc;
@@ -23,8 +11,23 @@
   text-align: left;
 }
 
+.box::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Fills the dialog so the content scrolls inside it instead of the whole dialog. */
+  max-height: calc(80vh - 2px);
+  box-sizing: border-box;
+  padding: 20px;
+}
+
 .content {
   overflow-y: auto;
+  font-size: 0.9em;
 }
 
 .button {

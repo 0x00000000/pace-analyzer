@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useRef } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 import styles from "./styles.module.css";
 
@@ -10,40 +10,47 @@ type Props = {
     children?: ReactNode;
 };
 
+// A modal dialog built on the native <dialog>. showModal() gives the backdrop, focus
+// trapping, Esc to close and inert page content behind it.
 export function InfoBox({ open, onClose, closeLabel, children }: Props) {
+    const dialogRef = useRef<HTMLDialogElement>(null);
+
+    // The `open` prop drives the dialog. Opening it with the `open` attribute instead
+    // would show it as non-modal, without the backdrop or focus trapping.
     useEffect(() => {
-        if (!open) {
+        const dialog = dialogRef.current;
+        if (!dialog) {
             return;
         }
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                onClose();
-            }
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [open, onClose]);
+        if (open && !dialog.open) {
+            dialog.showModal();
+        } else if (!open && dialog.open) {
+            dialog.close();
+        }
+    }, [open]);
 
-    if (!open) {
-        return null;
-    }
+    // The dialog has no padding, so a click on the <dialog> element itself
+    // (not on its content) is a click on the backdrop.
+    const handleClick = (e: MouseEvent<HTMLDialogElement>) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
 
     return (
-        <div className={styles.overlay} onClick={() => onClose()}>
-            <div
-                className={styles.box}
-                role="dialog"
-                aria-modal="true"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <dialog
+            ref={dialogRef}
+            className={styles.box}
+            // Fires when the dialog closes for any reason, including Esc, so the parent's state stays in sync.
+            onClose={onClose}
+            onClick={handleClick}
+        >
+            <div className={styles.inner}>
                 <div className={styles.content}>{children}</div>
-                <input
-                    className={styles.button}
-                    onClick={() => onClose()}
-                    value={closeLabel}
-                    type="button"
-                />
+                <button type="button" className={styles.button} onClick={onClose}>
+                    {closeLabel}
+                </button>
             </div>
-        </div>
+        </dialog>
     );
 }

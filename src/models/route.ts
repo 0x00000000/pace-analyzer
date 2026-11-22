@@ -43,10 +43,6 @@ class Route {
     private _smoothMaxDeviation: number = 10;
     private _paceLimit: number = 10;
 
-    constructor() {
-
-    }
-
     public getPaceWindow(): number {
         return this._paceWindow;
     }
