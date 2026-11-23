@@ -156,8 +156,8 @@ class Route {
             paceData.push(item);
             let paceTime: number = this.getTotalTime(paceData);
             while (paceTime > limitMilliseconds && paceData.length > 1) {
-                paceData.shift();
-                paceTime = this.getTotalTime(paceData);
+                const removedPoint: Point | undefined = paceData.shift();
+                paceTime = this.getReducedTotalTime(paceTime, removedPoint);
             }
             const paceDistance = this.getTotalDistance(paceData);
             return {
@@ -178,6 +178,13 @@ class Route {
             (previousValue, currentValue) => previousValue + currentValue.deltaTime,
             0
         );
+    }
+
+    private getReducedTotalTime(time: number, removedPoint: Point | undefined): number {
+        if (!removedPoint)
+            return time;
+
+        return time - removedPoint.deltaTime;
     }
 
     private getTotalDistance(points: Point[]): number {
