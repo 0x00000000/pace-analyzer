@@ -97,7 +97,7 @@ describe("Chart", () => {
         });
 
         it("shows the totals of the whole run when not zoomed", () => {
-            const { container, getByText } = renderChart(route);
+            const { container } = renderChart(route);
             expect(sectionValues(container)).toEqual(["5:33 min/km", "0.30 km", "1:40"]);
             expect(container.querySelector(".visibleSection")).toBeInTheDocument();
         });
