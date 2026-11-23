@@ -4,7 +4,7 @@ import type { PointerEvent } from "react";
 import type Route from "../../models/route";
 import type { TrackData } from "../../models/route";
 import { TrackMap } from "../TrackMap";
-import { formatTime } from "../../utils/format";
+import { formatPace, formatTime } from "../../utils/format";
 import { clampWindow, computeYRange, nearestIndex } from "../../utils/chart";
 import type { XWindow } from "../../utils/chart";
 
@@ -364,7 +364,7 @@ export function Chart(
                     <div className={styles.stat}>
                         <div className={styles.statLabel}>Pace</div>
                         <div className={styles.statValue}>
-                            {current && current.pace > 0 ? route.getPaceAsString(current.pace) : "–"}
+                            {current && current.pace > 0 ? formatPace(current.pace) : "–"}
                             <span className={styles.statUnit}> min/km</span>
                         </div>
                     </div>

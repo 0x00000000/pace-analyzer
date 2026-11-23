@@ -143,17 +143,3 @@ describe("Route smoothing", () => {
         expect(paces(smoothed)).toEqual(paces(raw));
     });
 });
-
-describe("Route.getPaceAsString", () => {
-    const route = new Route();
-
-    it("formats min/km as m:ss", () => {
-        expect(route.getPaceAsString(5.5)).toBe("5:30");
-        expect(route.getPaceAsString(4)).toBe("4:00");
-        expect(route.getPaceAsString(10.25)).toBe("10:15");
-    });
-
-    it("carries a rounded-up 60 seconds into the minutes", () => {
-        expect(route.getPaceAsString(5.999)).toBe("6:00");
-    });
-});

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render } from "@testing-library/react";
 
 import { Chart } from ".";
 import Route from "../../models/route";
-import { formatKilometers } from "../../utils/format";
+import { formatKilometers, formatPace } from "../../utils/format";
 import { makeRun, steady } from "../../test/fixtures";
 
 function renderChart(route: Route) {
@@ -16,7 +16,7 @@ function renderChart(route: Route) {
             xKey="distance"
             yKey="pace"
             formatX={formatKilometers}
-            formatY={p => route.getPaceAsString(p)}
+            formatY={formatPace}
             minSpan={50}
         />,
     );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatKilometers, formatTime } from "./format";
+import { formatTime, formatPace, formatKilometers } from "./format";
 
 describe("formatTime", () => {
     it("formats under an hour as m:ss", () => {
@@ -17,6 +17,18 @@ describe("formatTime", () => {
     it("formats an hour and longer as h:mm:ss", () => {
         expect(formatTime(3_600_000)).toBe("1:00:00");
         expect(formatTime(3_723_000)).toBe("1:02:03");
+    });
+});
+
+describe("formatPace", () => {
+    it("formats min/km as m:ss", () => {
+        expect(formatPace(5.5)).toBe("5:30");
+        expect(formatPace(4)).toBe("4:00");
+        expect(formatPace(10.25)).toBe("10:15");
+    });
+
+    it("carries a rounded-up 60 seconds into the minutes", () => {
+        expect(formatPace(5.999)).toBe("6:00");
     });
 });
 

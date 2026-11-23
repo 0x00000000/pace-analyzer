@@ -6,7 +6,7 @@ import { Chart } from "./components/Chart";
 import { InfoBox } from "./components/InfoBox";
 
 import Route from "./models/route";
-import { formatKilometers } from "./utils/format";
+import { formatKilometers, formatPace } from "./utils/format";
 
 import './App.css';
 
@@ -104,7 +104,7 @@ function App() {
         xKey="distance"
         yKey="pace"
         formatX={formatKilometers}
-        formatY={pace => route.getPaceAsString(pace)}
+        formatY={formatPace}
         minSpan={50}
       />
 

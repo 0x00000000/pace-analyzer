@@ -11,6 +11,14 @@ export function formatTime(ms: number): string {
     return `${minutes}:${ss}`;
 }
 
+// Formats a pace in min/km as m:ss.
+export function formatPace(pace: number): string {
+    const totalSeconds = Math.round(pace * 60);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 export function formatKilometers(meters: number): string {
     return (meters / 1000).toFixed(2);
 }

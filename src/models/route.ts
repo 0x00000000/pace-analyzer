@@ -79,13 +79,6 @@ class Route {
         return this._trackData;
     }
 
-    public getPaceAsString(pace: number): string {
-        const totalSeconds = Math.round(pace * 60); // min to sec
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return minutes.toString() + ":" + seconds.toString().padStart(2, '0');
-    }
-
     // Throws an Error with a message meant for the user when the data can't be loaded.
     // The track data is cleared first, so it's empty after a failed load.
     public loadData(data: string): void {
