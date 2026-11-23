@@ -36,47 +36,55 @@ function isRunkeeperPoint(item: unknown): item is RunkeeperPoint {
 }
 
 class Route {
-    private _trackData: TrackData[] = [];
+    private trackData: TrackData[] = [];
 
-    private _paceWindow: number = 30;
-    private _smoothNeighboursCount: number = 4;
-    private _smoothMaxDeviation: number = 10;
-    private _paceLimit: number = 10;
+    private paceWindow: number = 30;
+    private smoothNeighboursCount: number = 4;
+    private smoothMaxDeviation: number = 10;
+    private paceLimit: number = 10;
+
+    public getTrackData(): TrackData[] {
+        return this.trackData;
+    }
+
+    private setTrackData(trackData: TrackData[]): void {
+        this.trackData = trackData;
+    }
+
+    private clearTrackData(): void {
+        this.setTrackData([]);
+    }
 
     public getPaceWindow(): number {
-        return this._paceWindow;
+        return this.paceWindow;
     }
 
     public setPaceWindow(paceWindow: number): void {
-        this._paceWindow = paceWindow;
+        this.paceWindow = paceWindow;
     }
 
     public getSmoothNeighboursCount(): number {
-        return this._smoothNeighboursCount;
+        return this.smoothNeighboursCount;
     }
 
     public setSmoothNeighboursCount(neighboursCount: number): void {
-        this._smoothNeighboursCount = neighboursCount;
+        this.smoothNeighboursCount = neighboursCount;
     }
 
     public getSmoothMaxDeviation(): number {
-        return this._smoothMaxDeviation;
+        return this.smoothMaxDeviation;
     }
 
     public setSmoothMaxDeviation(maxDeviation: number): void {
-        this._smoothMaxDeviation = maxDeviation;
+        this.smoothMaxDeviation = maxDeviation;
     }
 
     public getPaceLimit(): number {
-        return this._paceLimit;
+        return this.paceLimit;
     }
 
     public setPaceLimit(paceLimit: number): void {
-        this._paceLimit = paceLimit;
-    }
-
-    public getTrackData(): TrackData[] {
-        return this._trackData;
+        this.paceLimit = paceLimit;
     }
 
     // Throws an Error with a message meant for the user when the data can't be loaded.
@@ -122,15 +130,11 @@ class Route {
         this.initTrackData(points);
     }
 
-    private clearTrackData(): void {
-        this._trackData = [];
-    }
-
     private initTrackData(points: Point[]): void {
         let totalTime = 0;
         let totalDistance = 0;
         const paceData: Point[] = [];
-        this._trackData = points.map(item => {
+        this.setTrackData(points.map(item => {
             totalTime += item.deltaTime;
             totalDistance += item.deltaDistance;
             const limitMilliseconds = this.getPaceWindow() * 1000;
@@ -149,10 +153,10 @@ class Route {
                 lat: item.lat,
                 lon: item.lon,
             };
-        });
+        }));
 
         const smoothMaxDeviationAsNumber: number = this.getSmoothMaxDeviation() / 100;
-        this.smoothTrackData(this.getSmoothNeighboursCount(), smoothMaxDeviationAsNumber);
+        this.updateTrackDataSmooth(this.getSmoothNeighboursCount(), smoothMaxDeviationAsNumber);
     }
 
     private getTotalTime(points: Point[]): number {
@@ -169,22 +173,25 @@ class Route {
         );
     }
 
-    private smoothTrackData(neighboursCount: number, maxDeviation: number) {
+    private updateTrackDataSmooth(neighboursCount: number, maxDeviation: number): void {
+        const trackData: TrackData[] = this.getTrackData();
+
         if (neighboursCount < 1 || maxDeviation <= 0)
             return;
+
         const pointsCount = neighboursCount * 2 + 1;
-        if (this._trackData.length < pointsCount)
+        if (trackData.length < pointsCount)
             return;
 
-        const averagePace: number[] = this.calculateEveragePaceList(neighboursCount);
+        const averagePaceList: number[] = this.getAveragePaceList(neighboursCount);
 
-        for (let i = neighboursCount; i < this._trackData.length - neighboursCount; i++) {
-            if (averagePace[i] === 0)
+        for (let i = neighboursCount; i < trackData.length - neighboursCount; i++) {
+            if (averagePaceList[i] === 0)
                 continue;
-            const prevDeviation: number = Math.abs((averagePace[i - 1] - averagePace[i]) / averagePace[i]);
-            const nextDeviation: number = Math.abs((averagePace[i + 1] - averagePace[i]) / averagePace[i]);
+            const prevDeviation: number = Math.abs((averagePaceList[i - 1] - averagePaceList[i]) / averagePaceList[i]);
+            const nextDeviation: number = Math.abs((averagePaceList[i + 1] - averagePaceList[i]) / averagePaceList[i]);
             if (prevDeviation < maxDeviation || nextDeviation < maxDeviation) {
-                this._trackData[i].pace = averagePace[i];
+                trackData[i].pace = averagePaceList[i];
             }
         }
     }
@@ -193,20 +200,22 @@ class Route {
         return distance ? ((time / 60000) / (distance / 1000)) : 0;
     }
 
-    private calculateEveragePaceList(neighboursCount: number): number[] {
+    private getAveragePaceList(neighboursCount: number): number[] {
         const averagePace: number[] = [];
         const pointsCount = neighboursCount * 2 + 1;
-        for (let i = 0; i < this._trackData.length; i++) {
+        const trackData: TrackData[] = this.getTrackData();
+
+        for (let i = 0; i < trackData.length; i++) {
             let startIndex = i - neighboursCount;
             if (startIndex < 0) {
                 startIndex = 0;
             }
-            if (startIndex > this._trackData.length - pointsCount) {
-                startIndex = this._trackData.length - pointsCount;
+            if (startIndex > trackData.length - pointsCount) {
+                startIndex = trackData.length - pointsCount;
             }
             let sum: number = 0;
             for (let k = startIndex; k < startIndex + pointsCount; k++) {
-                sum += this._trackData[k].pace;
+                sum += trackData[k].pace;
             }
             averagePace[i] = sum / pointsCount;
         }
