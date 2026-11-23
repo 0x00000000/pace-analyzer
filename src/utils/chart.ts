@@ -1,4 +1,5 @@
 import type { TrackData } from "../models/route";
+import { minMax } from "./array";
 
 export type XWindow = {
     start: number;
@@ -26,11 +27,10 @@ export function computeYRange(values: number[], tight: boolean, limit: number = 
 }
 
 function computeUnlimitedYRange(values: number[], tight: boolean): YRange {
-    const max = Math.max(...values);
+    const { min: minY, max } = minMax(values);
     if (!tight) {
         return { minY: 0, maxY: Math.max(0, max) || 1 };
     }
-    const minY = Math.min(...values);
     const maxY = max + (max - minY) * 0.05;
     // A flat line (all values equal) still needs a non-zero range to scale against.
     return { minY, maxY: maxY > minY ? maxY : minY + 1 };

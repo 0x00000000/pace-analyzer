@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import type { TrackData } from "../../models/route";
 import { lonScaleFor, projectPoint, visibleSegment } from "../../utils/trackMap";
 import type { ProjectedPoint } from "../../utils/trackMap";
+import { minMax } from "../../utils/array";
 
 import styles from "./styles.module.css";
 
@@ -43,12 +44,8 @@ export function TrackMap(
 
     // The map always fits the whole track (it doesn't follow the graph's zoom),
     // grown to the minimum size if needed.
-    const xs = projected.map(p => p.x);
-    const ys = projected.map(p => p.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+    const { min: minX, max: maxX } = minMax(projected.map(p => p.x));
+    const { min: minY, max: maxY } = minMax(projected.map(p => p.y));
     const extent = Math.max(maxX - minX, maxY - minY, MIN_EXTENT);
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;

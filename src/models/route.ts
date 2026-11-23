@@ -25,16 +25,6 @@ type TrackData = {
     lon: number;
 };
 
-// Checks the fields the track is built from. The rest of the point isn't used.
-function isRunkeeperPoint(item: unknown): item is RunkeeperPoint {
-    if (typeof item !== "object" || item === null) {
-        return false;
-    }
-    const p = item as Record<string, unknown>;
-    return ["deltaTime", "deltaDistance", "latitude", "longitude"]
-        .every(key => typeof p[key] === "number" && Number.isFinite(p[key]));
-}
-
 class Route {
     private trackData: TrackData[] = [];
 
@@ -42,6 +32,30 @@ class Route {
     private smoothNeighboursCount: number = 4;
     private smoothMaxDeviation: number = 10;
     private paceLimit: number = 10;
+
+    public initSettingsSave(
+        paceWindow: string,
+        smoothNeighboursCount: string,
+        smoothMaxDeviation: string,
+        paceLimit: string,
+    ): void {
+        const paceWindowSave: number = Number(paceWindow);
+        if (Number.isFinite(paceWindowSave) && paceWindowSave > 0) {
+            this.setPaceWindow(paceWindowSave);
+        }
+        const smoothNeighboursCountSave: number = Number(smoothNeighboursCount);
+        if (Number.isFinite(smoothNeighboursCountSave)) {
+            this.setSmoothNeighboursCount(smoothNeighboursCountSave);
+        }
+        const saveSmoothMaxDeviation: number = Number(smoothMaxDeviation);
+        if (Number.isFinite(saveSmoothMaxDeviation)) {
+            this.setSmoothMaxDeviation(saveSmoothMaxDeviation);
+        }
+        const savePaceLimit = Number(paceLimit);
+        if (Number.isFinite(savePaceLimit) && savePaceLimit > 0) {
+            this.setPaceLimit(savePaceLimit);
+        }
+   }
 
     public getTrackData(): TrackData[] {
         return this.trackData;
@@ -117,7 +131,7 @@ class Route {
         }
 
         const points: Point[] = rawPoints.map((item: unknown, i: number) => {
-            if (!isRunkeeperPoint(item)) {
+            if (!this.isRunkeeperPoint(item)) {
                 throw new Error(`Point ${i + 1} is missing deltaTime, deltaDistance, latitude or longitude.`);
             }
             return {
@@ -221,6 +235,17 @@ class Route {
         }
         return averagePace;
     }
+
+    private isRunkeeperPoint(item: unknown): item is RunkeeperPoint {
+        if (typeof item !== "object" || item === null) {
+            return false;
+        }
+        const testItem = item as Record<string, unknown>;
+        const keys: string[] = ["deltaTime", "deltaDistance", "latitude", "longitude"];
+
+        return keys.every(key => typeof testItem[key] === "number" && Number.isFinite(testItem[key]));
+    }
+
 }
 
 export type { TrackData };

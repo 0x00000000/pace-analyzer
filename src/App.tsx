@@ -13,6 +13,7 @@ import './App.css';
 function App() {
   const [jsonPoints, setJsonPoints] = useState("");
   const [route, setRoute] = useState<Route>(() => new Route());
+
   // Starts at the Route model's default.
   const [paceWindow, setPaceWindow] = useState(
     () => String(route.getPaceWindow())
@@ -27,28 +28,19 @@ function App() {
     () => String(route.getPaceLimit())
   );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+
   // Why the last Process couldn't load the pasted JSON, or null when it worked.
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const handleJsonProcess = () => {
     const newRoute = new Route();
-    // Must be set before loadData, which computes the pace. An empty or invalid value keeps the Route's default.
-    const limit = Number(paceWindow);
-    if (Number.isFinite(limit) && limit > 0) {
-      newRoute.setPaceWindow(limit);
-    }
-    const neighboursCount = Number(smoothNeighboursCount);
-    if (Number.isFinite(neighboursCount)) {
-      newRoute.setSmoothNeighboursCount(neighboursCount);
-    }
-    const maxDeviation = Number(smoothMaxDeviation);
-    if (Number.isFinite(maxDeviation)) {
-      newRoute.setSmoothMaxDeviation(maxDeviation);
-    }
-    const upperPaceLimit = Number(paceLimit);
-    if (Number.isFinite(upperPaceLimit) && upperPaceLimit > 0) {
-      newRoute.setPaceLimit(upperPaceLimit);
-    }
+    // Must be set before loadData. An empty or invalid value keeps the Route's default.
+    newRoute.initSettingsSave(
+      paceWindow,
+      smoothNeighboursCount,
+      smoothMaxDeviation,
+      paceLimit
+    );
 
     try {
       newRoute.loadData(jsonPoints);
@@ -56,6 +48,7 @@ function App() {
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : String(e));
     }
+
     // Set even after a failed load, so the chart doesn't keep showing the previous activity.
     setRoute(newRoute);
   };

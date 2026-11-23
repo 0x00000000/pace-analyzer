@@ -24,7 +24,17 @@ describe("computeYRange", () => {
         expect(minY).toBe(1);
         // 201 + (201 - 1) * 0.05
         expect(maxY).toBeCloseTo(211);
-        expect(maxY).toBeGreaterThanOrEqual(Math.max(...values));
+        expect(maxY).toBeGreaterThanOrEqual(201);
+    });
+
+    it("handles tracks too long to spread into Math.min / Math.max", () => {
+        const values = Array.from({ length: 500_000 }, (_, i) => 4 + (i % 100) / 10);
+        const loose = computeYRange(values, false);
+        expect(loose.minY).toBe(0);
+        expect(loose.maxY).toBeCloseTo(13.9);
+        const { minY, maxY } = computeYRange(values, true);
+        expect(minY).toBe(4);
+        expect(maxY).toBeCloseTo(13.9 + 9.9 * 0.05);
     });
 
     it("gives a flat line a non-zero range", () => {

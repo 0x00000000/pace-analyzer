@@ -105,7 +105,8 @@ export function Chart(
     const yLimit = yKey === "pace" ? route.getPaceLimit() : Infinity;
 
     const { maxX, minY, maxY } = useMemo(() => ({
-        maxX: Math.max(0, ...data.map(d => d[xKey])) || 1,
+        // Distance only grows along a run, so the last point holds the largest value.
+        maxX: (data.length ? data[data.length - 1][xKey] : 0) || 1,
         ...computeYRange(plotted.map(d => d[yKey]), yKey === "pace", yLimit),
     }), [data, plotted, xKey, yKey, yLimit]);
 
