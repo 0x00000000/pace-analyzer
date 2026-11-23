@@ -33,22 +33,22 @@ class Route {
     private smoothMaxDeviation: number = 10;
     private paceLimit: number = 10;
 
-    public initSettingsSave(
+    public setSettings(
         paceWindow: string,
         smoothNeighboursCount: string,
         smoothMaxDeviation: string,
         paceLimit: string,
     ): void {
-        const paceWindowSave: number = Number(paceWindow);
+        const paceWindowSave: number = Math.round(Number(paceWindow));
         if (Number.isFinite(paceWindowSave) && paceWindowSave > 0) {
             this.setPaceWindow(paceWindowSave);
         }
-        const smoothNeighboursCountSave: number = Number(smoothNeighboursCount);
-        if (Number.isFinite(smoothNeighboursCountSave)) {
+        const smoothNeighboursCountSave: number = Math.round(Number(smoothNeighboursCount));
+        if (Number.isFinite(smoothNeighboursCountSave) && smoothNeighboursCount.trim() !== "") {
             this.setSmoothNeighboursCount(smoothNeighboursCountSave);
         }
         const saveSmoothMaxDeviation: number = Number(smoothMaxDeviation);
-        if (Number.isFinite(saveSmoothMaxDeviation)) {
+        if (Number.isFinite(saveSmoothMaxDeviation) && smoothMaxDeviation.trim() !== "") {
             this.setSmoothMaxDeviation(saveSmoothMaxDeviation);
         }
         const savePaceLimit = Number(paceLimit);
@@ -200,7 +200,8 @@ class Route {
         const averagePaceList: number[] = this.getAveragePaceList(neighboursCount);
 
         for (let i = neighboursCount; i < trackData.length - neighboursCount; i++) {
-            if (averagePaceList[i] === 0)
+            // A point with no distance stays at pace 0, so it isn't plotted.
+            if (trackData[i].pace === 0 || averagePaceList[i] === 0)
                 continue;
             const prevDeviation: number = Math.abs((averagePaceList[i - 1] - averagePaceList[i]) / averagePaceList[i]);
             const nextDeviation: number = Math.abs((averagePaceList[i + 1] - averagePaceList[i]) / averagePaceList[i]);
@@ -227,11 +228,16 @@ class Route {
             if (startIndex > trackData.length - pointsCount) {
                 startIndex = trackData.length - pointsCount;
             }
+            // Pace 0 means "no distance covered", not a pace, so those points are left out.
             let sum: number = 0;
+            let count: number = 0;
             for (let k = startIndex; k < startIndex + pointsCount; k++) {
-                sum += trackData[k].pace;
+                if (trackData[k].pace > 0) {
+                    sum += trackData[k].pace;
+                    count++;
+                }
             }
-            averagePace[i] = sum / pointsCount;
+            averagePace[i] = count > 0 ? sum / count : 0;
         }
         return averagePace;
     }

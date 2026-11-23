@@ -35,7 +35,7 @@ function App() {
   const handleJsonProcess = () => {
     const newRoute = new Route();
     // Must be set before loadData. An empty or invalid value keeps the Route's default.
-    newRoute.initSettingsSave(
+    newRoute.setSettings(
       paceWindow,
       smoothNeighboursCount,
       smoothMaxDeviation,

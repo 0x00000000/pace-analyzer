@@ -116,6 +116,53 @@ describe("Route pace", () => {
     });
 });
 
+describe("Route.setSettings", () => {
+    // [paceWindow, smoothNeighboursCount, smoothMaxDeviation, paceLimit] after setSettings.
+    const settingsAfter = (...values: [string, string, string, string]) => {
+        const route = new Route();
+        route.setSettings(...values);
+        return [
+            route.getPaceWindow(),
+            route.getSmoothNeighboursCount(),
+            route.getSmoothMaxDeviation(),
+            route.getPaceLimit(),
+        ];
+    };
+    const defaults = [30, 4, 10, 10];
+
+    it("applies valid values", () => {
+        expect(settingsAfter("20", "2", "15", "8")).toEqual([20, 2, 15, 8]);
+    });
+
+    it("keeps the defaults for empty fields", () => {
+        expect(settingsAfter("", "", "", "")).toEqual(defaults);
+        expect(settingsAfter(" ", " ", " ", " ")).toEqual(defaults);
+    });
+
+    it("keeps the defaults for values that aren't numbers", () => {
+        expect(settingsAfter("abc", "x", "1,5", "-")).toEqual(defaults);
+    });
+
+    it("keeps the default pace window and pace limit for values that aren't positive", () => {
+        expect(settingsAfter("0", "4", "10", "-5")).toEqual(defaults);
+    });
+
+    it("accepts 0 neighbours and 0 max deviation, which turn smoothing off", () => {
+        expect(settingsAfter("30", "0", "0", "10")).toEqual([30, 0, 0, 10]);
+    });
+
+    it("rounds the neighbours count to a whole number", () => {
+        expect(settingsAfter("30", "2.5", "10", "10")[1]).toBe(3);
+        expect(settingsAfter("30", "2.4", "10", "10")[1]).toBe(2);
+    });
+
+    it("doesn't crash loadData with a fractional neighbours count", () => {
+        const route = new Route();
+        route.setSettings("1", "2.5", "10", "10");
+        expect(() => route.loadData(makeRun(steady(20)))).not.toThrow();
+    });
+});
+
 describe("Route smoothing", () => {
     // A steady run with one slow step in the middle. A 1 s pace window keeps the raw
     // spike sharp (16:40 min/km at the slow step).
@@ -133,6 +180,24 @@ describe("Route smoothing", () => {
         expect(off1.getTrackData()[10].pace).toBeCloseTo(rawSpike);
         const off2 = load(spikyRun, { paceWindow: 1, smoothMaxDeviation: 0 });
         expect(paces(off2)).toEqual(paces(off1));
+    });
+
+    // A steady run with a 3 s stop in the middle. With a 1 s pace window the stopped
+    // points have pace 0 ("no distance covered").
+    const stopRun = makeRun([...steady(10), ...steady(3, 1000, 0), ...steady(10)]);
+
+    it("leaves points without distance out of the average", () => {
+        const data = load(stopRun, { paceWindow: 1 }).getTrackData();
+        // Points 8 to 10 have stopped points in their neighbourhood. Counting those as
+        // pace 0 would make the average faster than the steady pace.
+        for (const i of [8, 9, 10]) {
+            expect(data[i].pace).toBeCloseTo(pace(1000, 3));
+        }
+    });
+
+    it("keeps points without distance at pace 0", () => {
+        const data = load(stopRun, { paceWindow: 1 }).getTrackData();
+        expect([data[11].pace, data[12].pace, data[13].pace]).toEqual([0, 0, 0]);
     });
 
     it("leaves tracks shorter than the neighbourhood alone", () => {
