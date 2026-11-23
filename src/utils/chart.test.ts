@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { clampWindow, computeYRange, nearestIndex } from "./chart";
+import { clampWindow, computeYRange, nearestIndex, sectionStats } from "./chart";
 import { trackPoint } from "../test/fixtures";
 
 describe("computeYRange", () => {
@@ -75,6 +75,32 @@ describe("nearestIndex", () => {
     it("clamps to the first and last points", () => {
         expect(nearestIndex(points, "time", -50)).toBe(0);
         expect(nearestIndex(points, "time", 99_999)).toBe(3);
+    });
+});
+
+describe("sectionStats", () => {
+    // A point every 10 s and 30 m: 5:33 min/km.
+    const points = [1, 2, 3, 4, 5].map(i => trackPoint({ time: i * 10_000, distance: i * 30 }));
+
+    it("covers the whole run, from its start, when every point is inside", () => {
+        const stats = sectionStats(points, "distance", 0, 150);
+        expect(stats).toMatchObject({ distance: 150, time: 50_000 });
+        expect(stats?.pace).toBeCloseTo(50 / 60 / 0.15);
+    });
+
+    it("measures a middle section from the point before it", () => {
+        // Points at 60, 90 and 120 m are inside; the section starts at the 30 m point.
+        expect(sectionStats(points, "distance", 50, 130)).toMatchObject({ distance: 90, time: 30_000 });
+    });
+
+    it("gives a pace of 0 when no distance was covered", () => {
+        const standing = [trackPoint({ time: 1000, distance: 0 }), trackPoint({ time: 2000, distance: 0 })];
+        expect(sectionStats(standing, "time", 0, 5000)).toEqual({ distance: 0, time: 2000, pace: 0 });
+    });
+
+    it("returns null when no point is inside", () => {
+        expect(sectionStats(points, "distance", 31, 59)).toBeNull();
+        expect(sectionStats([], "distance", 0, 100)).toBeNull();
     });
 });
 

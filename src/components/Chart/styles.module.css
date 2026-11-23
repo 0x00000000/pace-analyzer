@@ -39,7 +39,7 @@
 }
 
 .statLabel {
-  margin-top: 12px;
+  margin-top: 2px;
 }
 
 .statLabel {
@@ -48,7 +48,7 @@
 }
 
 .statValue {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -108,4 +108,9 @@
 .empty {
   padding: 16px;
   color: #888;
+}
+
+.visibleSection {
+  display: flex;
+  flex-direction: column;
 }

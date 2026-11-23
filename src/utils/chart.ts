@@ -55,6 +55,44 @@ export function nearestIndex(points: TrackData[], key: "time" | "distance", valu
     return lo;
 }
 
+export type SectionStats = {
+    // Meters covered in the section.
+    distance: number;
+    // Milliseconds the section took.
+    time: number;
+    // Average pace in min/km, or 0 when no distance was covered.
+    pace: number;
+};
+
+// Totals for the part of the run whose `key` value is in [start, end]. Each point's distance and
+// time are totals up to that point, so the section is measured from the point just before the
+// first one inside it (or from the start of the run). Returns null when no point is inside.
+export function sectionStats(
+    points: TrackData[],
+    key: "time" | "distance",
+    start: number,
+    end: number,
+): SectionStats | null {
+    let first = -1;
+    let last = -1;
+    for (let i = 0; i < points.length; i++) {
+        if (points[i][key] >= start && points[i][key] <= end) {
+            if (first < 0) {
+                first = i;
+            }
+            last = i;
+        }
+    }
+    if (first < 0) {
+        return null;
+    }
+    const before = first > 0 ? points[first - 1] : { distance: 0, time: 0 };
+    const distance = points[last].distance - before.distance;
+    const time = points[last].time - before.time;
+    const pace = distance > 0 ? (time / 60000) / (distance / 1000) : 0;
+    return { distance, time, pace };
+}
+
 // Keeps the window inside [0, maxX] without changing its span.
 export function clampWindow(start: number, span: number, maxX: number): XWindow {
     const clampedStart = Math.min(Math.max(start, 0), maxX - span);

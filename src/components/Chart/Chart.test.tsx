@@ -22,9 +22,16 @@ function renderChart(route: Route) {
     );
 }
 
-// The text of the Pace, Distance and Time values.
+// The text of the Pace, Distance and Time values at the current position.
 function statValues(container: HTMLElement): string[] {
-    return [...container.querySelectorAll(".statValue")].map(el => el.textContent ?? "");
+    const stats = container.querySelector(".stats");
+    return [...(stats?.querySelectorAll(".statValue") ?? [])].map(el => el.textContent ?? "");
+}
+
+// The text of the Average pace, Distance and Time values of the visible section.
+function sectionValues(container: HTMLElement): string[] {
+    const section = container.querySelector('section[aria-label="Visible section"]');
+    return [...(section?.querySelectorAll(".statValue") ?? [])].map(el => el.textContent ?? "");
 }
 
 function graph(container: HTMLElement): SVGSVGElement {
@@ -87,6 +94,22 @@ describe("Chart", () => {
             fireEvent.pointerMove(svg, { clientX: 70 + 355, clientY: 100 });
             fireEvent.pointerMove(svg, { clientX: 10, clientY: 100 });
             expect(statValues(container)).toEqual(["5:33 min/km", "0.15 km", "0:50"]);
+        });
+
+        it("shows the totals of the whole run when not zoomed", () => {
+            const { container, getByText } = renderChart(route);
+            expect(sectionValues(container)).toEqual(["5:33 min/km", "0.30 km", "1:40"]);
+            expect(container.querySelector(".visibleSection")).toBeInTheDocument();
+        });
+
+        it("updates the visible-section totals after zooming in", () => {
+            const { container } = renderChart(route);
+            fireEvent.wheel(graph(container), { clientX: 70 + 355, clientY: 100, deltaY: -1000 });
+            const [pace, distance, time] = sectionValues(container);
+            // Steady run, so the average pace stays the same while the section gets shorter.
+            expect(pace).toBe("5:33 min/km");
+            expect(parseFloat(distance)).toBeLessThan(0.3);
+            expect(time).not.toBe("1:40");
         });
     });
 });

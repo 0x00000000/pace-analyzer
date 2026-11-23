@@ -5,7 +5,7 @@ import type Route from "../../models/route";
 import type { TrackData } from "../../models/route";
 import { TrackMap } from "../TrackMap";
 import { formatPace, formatTime } from "../../utils/format";
-import { clampWindow, computeYRange, nearestIndex } from "../../utils/chart";
+import { clampWindow, computeYRange, nearestIndex, sectionStats } from "../../utils/chart";
 import type { XWindow } from "../../utils/chart";
 
 import styles from "./styles.module.css";
@@ -48,7 +48,7 @@ const PLOT_WIDTH = WIDTH - MARGIN.left - MARGIN.right;
 const PLOT_HEIGHT = HEIGHT - MARGIN.top - MARGIN.bottom;
 const TICK_COUNT = 5;
 // How strongly one wheel step zooms.
-const ZOOM_SPEED = 0.0015;
+const ZOOM_SPEED = 0.0007;
 
 // Converts a mouse X position to the SVG's viewBox coordinates.
 function toViewBoxX(svg: SVGSVGElement, clientX: number): number {
@@ -230,6 +230,8 @@ export function Chart(
     // An empty window gives an empty range, and the map shows no highlight.
     const mapStart = firstPoint ? firstPoint.time : Infinity;
     const mapEnd = windowPoints.length > 0 ? windowPoints[windowPoints.length - 1].time : -Infinity;
+    // Distance, time and average pace of the visible part of the run, or null when it has no points.
+    const section = sectionStats(data, xKey, xWindow.start, xWindow.end);
     const xTicks = ticks(xWindow.start, xWindow.end).map(value => ({ pos: scaleX(value), label: formatX(value) }));
     const yTicks = ticks(minY, maxY).map(value => ({ pos: scaleY(value), label: formatY(value) }));
 
@@ -385,6 +387,33 @@ export function Chart(
                         </div>
                     </div>
                 </div>}
+
+                {showDetails && <section className={styles.visibleSection} aria-label="Visible section">
+                    <div className={styles.stats}>
+                        <div className={styles.stat}>
+                            <div className={styles.statLabel}>Average pace (visible section)</div>
+                            <div className={styles.statValue}>
+                                {section && section.pace > 0 ? formatPace(section.pace) : "–"}
+                                <span className={styles.statUnit}> min/km</span>
+                            </div>
+                        </div>
+
+                        <div className={styles.stat}>
+                            <div className={styles.statLabel}>Distance (visible section)</div>
+                            <div className={styles.statValue}>
+                                {section ? (section.distance / 1000).toFixed(2) : "–"}
+                                <span className={styles.statUnit}> km</span>
+                            </div>
+                        </div>
+
+                        <div className={styles.stat}>
+                            <div className={styles.statLabel}>Time (visible section)</div>
+                            <div className={styles.statValue}>
+                                {section ? formatTime(section.time) : "–"}
+                            </div>
+                        </div>
+                    </div>
+                </section>}
             </div>
 
             {showDetails && <div className={styles.map}>
